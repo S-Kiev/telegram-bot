@@ -1,13 +1,16 @@
 import { OpenAI } from 'openai';
 import { functionDictionary } from './functionDictionary.js';
 import { getWeather } from './openWeatherService.js';
+import { PrismaClient } from '@prisma/client'
 import dotenv from 'dotenv';
 
 dotenv.config();
 
+const prisma = new PrismaClient();
+
 const openai = new OpenAI({});
 
-export async function callFunctions(text) {
+export async function callFunctions(text, chatId) {
     let response = null;
 
     try {
@@ -32,14 +35,68 @@ export async function callFunctions(text) {
         switch (nameFunction) {
             case 'getCurrentWeather':
                 objectArguments.code = objectArguments.code ?? 'UY';
-                console.log(objectArguments);
+                console.log((objectArguments));
                 Obj = await getWeather(objectArguments.city, objectArguments.code);
+
+                if (Obj === null) {
+                    Obj = { error: 'Lo siento no pudo encontrar el clima de esa ciudad' };
+                }
+
+                break;
             case 'getTotalMessages':
-                //llamar a prisma
-                //Obj = await prima(idChat);
+
+                const messages = await prisma.user.findUnique({
+                    where: {
+                        chatId: BigInt(chatId)
+                    },
+                    select: {
+                        messageCounter: true
+                    }
+                });
+
+                if(messages){
+                    Obj = { messages: `Tienes ${messages.messageCounter} mensajes` };
+                }else{
+                    Obj = { messages: `Parece que no tienes mensajes` };
+                }
+
+                break;
+
+            case 'setLocation':
+
+                const city = objectArguments.city;
+                const country = objectArguments.code;
+
+                if(!city || !country){
+                    Obj = { error: 'No se pudo encontrar la ciudad o el país' };
+                    break;
+                }
+
+                Obj = await prisma.user.update({
+                    where: {
+                        chatId: BigInt(chatId)
+                    },
+                    data: {
+                        city: city,
+                        country: country
+                    },
+                    select: {
+                        city: true,
+                        country: true,
+                        name: true,
+                        lastname: true
+                    }
+                });
+
+                break;
             default:
                 break;
         }
+
+        console.log(`nameFunction: ${nameFunction}`);
+        console.log(`argumentsFunction: ${argumentsFunction}`);
+        console.log(`text: ${text}`);
+
 
         const ultimateResponse = await secondCallOpenAI(text, argumentsFunction, nameFunction, Obj);
 

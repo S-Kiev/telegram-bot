@@ -12,7 +12,7 @@ const loadCountries = async () => {
     const data = await fs.readFile(filePath, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
-    console.error('Error loading countries.json:', error);
+    console.error('Error al cargar countries.json:', error);
     throw error;
   }
 };

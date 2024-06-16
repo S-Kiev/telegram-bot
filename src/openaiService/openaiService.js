@@ -1,6 +1,6 @@
 import { OpenAI } from 'openai';
 import { functionDictionary } from './functionDictionary.js';
-import { getWeather } from './openWeatherService.js';
+import { getWeather } from './api/openWeatherService.js';
 import { PrismaClient } from '@prisma/client'
 import dotenv from 'dotenv';
 
@@ -17,7 +17,7 @@ export async function callFunctions(text, chatId) {
         response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo-0613',
             messages: [
-                { role: 'system', content: 'Tu nombre es Lucia y eres un asistente de telegram que brinda al usuario el clima y la cantidad de mensajes del chat' },
+                { role: 'system', content: 'Tu nombre es Patricia y eres un asistente de telegram que brinda al usuario el clima y la cantidad de mensajes del chat' },
                 { role: 'user', content: text }
             ],
             functions: functionDictionary,
@@ -104,7 +104,7 @@ export async function callFunctions(text, chatId) {
 
     } catch (error) {
         console.log(error);   
-        throw new Error('Error al llamar a la API de OpenAI');
+        return { error: error.message };
     }
 }
 
@@ -114,7 +114,7 @@ async function secondCallOpenAI(text, argumentsFunction, nameFunction, Obj) {
         "messages": [
             {
                 "role": "system",
-                "content": 'Tu nombre es Lucia y eres un asistente de telegram que brinda al usuario el clima y la cantidad de mensajes del chat'
+                "content": 'Tu nombre es Patricia y eres un asistente de telegram que brinda al usuario el clima y la cantidad de mensajes del chat'
             },
             {
                 "role": "user", 

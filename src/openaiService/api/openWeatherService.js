@@ -14,8 +14,8 @@ export async function getWeather(city, code) {
 
         const response = await axios(config);
 
-        if(!response){
-            throw new Error('Error al obtener la informacion de la ciudad');
+        if(!response) {
+            return { error: 'Lo siento no pudo encontrar el clima de esa ciudad, quizas la ciudad no existe o no esta en el pais que especificaste, intentalo de nuevo' };
         }
 
         const lat = response.data[0].lat;
@@ -30,13 +30,13 @@ export async function getWeather(city, code) {
 
         const response2 = await axios(config2);
 
-        if(!response2){
-            throw new Error('Error al obtener la informacion del clima');
+        if(!response2) {
+            return { error: 'Lo siento pero ocurrio un error al obtener el clima, intentalo de nuevo' };
         }   
 
         return response2.data;
           
     } catch (error) {
-        throw new Error(error);
+        return { error: 'Lo siento pero ocurrio un error al obtener el clima, intentalo de nuevo' };
     }
 }

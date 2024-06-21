@@ -4,6 +4,8 @@ import { getAudioFromTelegram } from './audioProcess/getAudioFromTelegram.js';
 import { callFunctions } from './openaiService/openaiService.js';
 import { PrismaClient } from '@prisma/client';
 
+import { callChatMemory } from './langchain/langchainService.js';
+
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -40,7 +42,13 @@ bot.start( async (ctx) => {
 
     await countMessages(ctx.update.message.chat.id, ctx.update.message.from.first_name, ctx.update.message.from.last_name);
 
-    ctx.reply(`Hola ${ctx.from.first_name} ${ctx.from.last_name}, soy Patricia, un bot asistente de telegram para consultar el clima y la cantidad de mensajes que ma has mandado.\n\nPuedes preguntarme por los botones del menu inferior, o puedes mandarme mensajes de texto y audio\n\n ademas no dudes en usar el comando /help si necesitas ayuda`, Markup.keyboard(['¡Quiero saber el clima de mi ciudad! 🌞', '¡Quiero contar mis mensajes! 📊']).resize().persistent())
+    if (ctx.from.first_name && ctx.from.last_name) {
+        ctx.reply(`Hola ${ctx.from.first_name} ${ctx.from.last_name}, soy Patricia, un bot asistente de telegram para consultar el clima y la cantidad de mensajes que ma has mandado.\n\nPuedes preguntarme por los botones del menu inferior, o puedes mandarme mensajes de texto y audio\n\n ademas no dudes en usar el comando /help si necesitas ayuda`, Markup.keyboard(['¡Quiero saber el clima de mi ciudad! 🌞', '¡Quiero contar mis mensajes! 📊']).resize().persistent())
+        
+    }
+    else if (ctx.from.last_name) {
+        ctx.reply(`Hola ${ctx.from.first_name}, soy Patricia, un bot asistente de telegram para consultar el clima y la cantidad de mensajes que ma has mandado.\n\nPuedes preguntarme por los botones del menu inferior, o puedes mandarme mensajes de texto y audio\n\n ademas no dudes en usar el comando /help si necesitas ayuda`, Markup.keyboard(['¡Quiero saber el clima de mi ciudad! 🌞', '¡Quiero contar mis mensajes! 📊']).resize().persistent())
+    }
 });
 
 bot.help( async (ctx) => {
@@ -103,7 +111,8 @@ bot.on(message('text'), async (ctx) => {
 
     await countMessages(chatId, ctx.message.from.first_name, ctx.message.from.last_name);
 
-    const response = await callFunctions(text, chatId);
+    //const response = await callFunctions(text, chatId);
+    const response = await callChatMemory(text, chatId);
 
     await ctx.telegram.sendMessage(chatId, response);
 });
@@ -118,7 +127,8 @@ bot.on(message('voice'), async (ctx) => {
 
     await countMessages(chatId, ctx.update.message.chat.first_name, ctx.update.message.chat.last_name);
 
-    const response = await callFunctions(transcription, chatId);
+    //const response = await callFunctions(transcription, chatId);
+    const response = await callChatMemory(transcription, chatId);
 
     await ctx.telegram.sendMessage(chatId, response);
 });

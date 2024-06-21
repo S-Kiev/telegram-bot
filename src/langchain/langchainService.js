@@ -35,8 +35,10 @@ export async function callChatMemory(text, chatId) {
         llm: openai,
     });
 
+    let openaiResponse
+
     try {
-        const openaiResponse = await callFunctions(text, chatId);
+        openaiResponse = await callFunctions(text, chatId);
     } catch (error) {
         console.log(error);
     }
@@ -51,6 +53,4 @@ export async function callChatMemory(text, chatId) {
 
     return response.response;
 }
-
-callChatMemory();
 

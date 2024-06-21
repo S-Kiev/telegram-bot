@@ -35,15 +35,15 @@ export async function callChatMemory(text, chatId) {
         llm: openai,
     });
 
-    let openaiResponse
+    // let openaiResponse
 
-    try {
-        openaiResponse = await callFunctions(text, chatId);
-    } catch (error) {
-        console.log(error);
-    }
+    // try {
+    //     openaiResponse = await callFunctions(text, chatId);
+    // } catch (error) {
+    //     console.log(error);
+    // }
 
-    text = `Resultado de la consulta a la api de openWhaether: ${openaiResponse} \n\nEsta es la consulta original del usuario: ${text}`;
+    // text = `Resultado de la consulta a la api de openWhaether: ${openaiResponse} \n\nEsta es la consulta original del usuario: ${text}`;
 
     const response = await conversationChain.call({
         input: text,

@@ -6,6 +6,9 @@ import { ChatOpenAI } from '@langchain/openai';
 import { ConversationChain } from 'langchain/chains';
 import { UpstashRedisChatMessageHistory } from '@langchain/community/stores/message/upstash_redis';
 
+import { DynamicTool, DynamicStructuredTool } from '@langchain/core/tools';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+
 import { callFunctions } from '../openaiService/openaiService.js';
 
 export async function callChatMemory(text, chatId) {
@@ -15,7 +18,7 @@ export async function callChatMemory(text, chatId) {
     const memory = new BufferMemory({
         chatHistory: new UpstashRedisChatMessageHistory({
             sessionId: chatId,
-            sessionTTL: 300,
+            //sessionTTL: 600, // 10 minutos de persistencia en la memoria
             config: {
                 url: process.env.UPSTASH_REDIS_URL,
                 token: process.env.UPSTASH_REDIS_TOKEN
